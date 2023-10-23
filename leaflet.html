@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaflet</title>
+    <div class="container">
+        <div class="card mt-2 shadow">
+            <div class="card-header text-center">
+                <h2 style="text-align: center; margin: 15px;">Lokasi Gunung Berapi di Pulau Jawa
+                </h2>
+            </div>
+
+
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+                integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+                crossorigin="anonymous">
+
+            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+                integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+            <!-- Make sure you put this AFTER Leaflet's CSS -->
+            <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+                integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+            <style>
+                #map:focus {
+                    outline: #4A74A8 solid 0.15em;
+                }
+
+                #map {
+                    height: 500px;
+                }
+
+                #custom-buttons {
+                    position:absolute;
+                    top: 500px;
+                    left: 10px;
+                    z-index: 1000;
+
+                }
+            </style>
+
+
+
+
+</head>
+
+<body>
+    <div id="map" class="map" tabindex="0" style="height: 470px;"></div>
+    <div id="custom-buttons" style="align-self: center; margin-bottom: 10px; ">
+        <button onclick="zoomOut()">Zoom out</button>
+        <button onclick="zoomIn()">Zoom in</button>
+    </div>
+
+    <script>
+        var map = L.map('map').setView([-7, 110], 7);
+
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        // Fungsi zoom in
+        function zoomIn() {
+            map.zoomIn();
+        }
+
+        // Fungsi zoom out
+        function zoomOut() {
+            map.zoomOut();
+        }
+
+        // Tambahkan kontrol zoom in dan zoom out
+        L.control.zoom({ position: 'topright' }).addTo(map);
+
+        // Tambahkan single marker sebagai contoh
+        //var marker = L.marker([-0.7893, 113.9213], 5).addTo(map);
+        //marker.bindPopup("Ini adalah contoh marker.").openPopup();
+
+        //banyak marker
+        var markerData = [
+            { lat: -7.5400, lon: 110.4467, title: "Gunung Merapi" },
+            { lat: -8.1081, lon: 112.9193, title: "Gunung Semeru" },
+            { lat: -7.9425, lon: 112.9531, title: "Gunung Bromo" },
+            { lat: -8.0585, lon: 114.2424, title: "Gunung Ijen" },
+            { lat: -7.6316, lon: 111.2023, title: "Gunung Lawu" },
+
+        ];
+
+        for (var i = 0; i < markerData.length; i++) {
+            var marker = L.marker([markerData[i].lat, markerData[i].lon]).addTo(map);
+            marker.bindPopup(markerData[i].title);
+        }
+
+        //tambahkan circle
+
+        var circles = [
+            { coordinates: [-7.5400, 110.4467], radius: 3000, color: 'blue', fillOpacity: 0.2 },
+            { coordinates: [-8.1081, 112.9193], radius: 3000, color: 'blue', fillOpacity: 0.2 },
+            { coordinates: [-7.9425, 112.9531], radius: 3000, color: 'blue', fillOpacity: 0.2 },
+            { coordinates: [-8.0585, 114.2424], radius: 3000, color: 'blue', fillOpacity: 0.2 },
+            { coordinates: [-7.6316, 111.2023], radius: 3000, color: 'blue', fillOpacity: 0.2 }
+        ];
+
+        circles.forEach(function (circle) {
+            var circleObject = L.circle(circle.coordinates, {
+                color: circle.color,
+                fillColor: circle.color,
+                fillOpacity: circle.fillOpacity,
+                radius: circle.radius
+            }).addTo(map);
+
+            circleObject.bindPopup("Radius: " + circle.radius + " meters");
+        });
+
+        //tambahkan polygon
+        var polygonCoordinates = [
+            [-7.9797, 112.6304],
+            [-8.1081, 112.9193],
+            [-7.9425, 112.9531]
+        ]; // Koordinat titik-titik yang membentuk polygon
+
+        var polygon = L.polygon(polygonCoordinates, {
+            color: 'black',
+            fillColor: 'grey',
+            fillOpacity: 0.3
+        }).addTo(map);
+
+
+
+
+        //fungsi pop up
+        function onMapClick(e) {
+            alert("You clicked the map at " + e.latlng);
+        }
+
+        map.on('click', onMapClick);
+
+        var popup = L.popup();
+
+        function onMapClick(e) {
+            popup
+                .setLatLng(e.latlng)
+                .setContent("You clicked the map at " + e.latlng.toString())
+                .openOn(map);
+        }
+
+        map.on('click', onMapClick);
+
+    </script>
+</body>
+
+</html>

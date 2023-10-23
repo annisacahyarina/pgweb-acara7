@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>OpenLayers</title>
+    <div class="container">
+        <div class="card mt-2 shadow">
+            <div class="card-header text-center">
+                <h2 style="text-align: center; margin: 15px;">Lokasi Universitas di DIY Menggunakan OpenLayers
+                </h2>
+            </div>
+
+
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+                integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+                crossorigin="anonymous">
+
+            <link rel="stylesheet" href="https://openlayers.org/en/v3.20.1/css/ol.css" type="text/css">
+            <!-- The line below is only needed for old environments like Internet 
+Explorer and Android 4.x -->
+            <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,El
+ement.prototype.classList,URL"></script>
+            <script src="https://openlayers.org/en/v3.20.1/build/ol.js"></script>
+            <style>
+                #map:focus {
+                    outline: #4A74A8 solid 0.15em;
+                }
+            </style>
+</head>
+
+<body>
+    <div id="map" class="map" tabindex="0" style="height: 450px; margin: 10px;"></div>
+
+    <div style="align-self: center; margin-bottom: 10px;">
+        <button id="zoom-out">Zoom out</button>
+        <button id="zoom-in">Zoom in</button>
+    </div>
+
+    <script>
+        var map = new ol.Map({
+            layers: [
+                new ol.layer.Tile({
+                    source: new ol.source.OSM()
+                })
+            ],
+            target: 'map',
+            controls: ol.control.defaults({
+                attributionOptions: /** @type {olx.control.AttributionOptions} */ ({
+                    collapsible: false
+                })
+            }),
+            //fokus peta Indonesia
+            view: new ol.View({
+                center: ol.proj.transform([110.4, -7.4], 'EPSG:4326', 'EPSG:3857'),
+                zoom: 9
+            })
+        });
+        document.getElementById('zoom-out').onclick = function () {
+            var view = map.getView();
+            var zoom = view.getZoom();
+            console.log("Debug zoom out: " + zoom);
+            view.setZoom(zoom - 1);
+        };
+        document.getElementById('zoom-in').onclick = function () {
+            var view = map.getView();
+            var zoom = view.getZoom();
+            console.log("Debug zoom in: " + zoom);
+            view.setZoom(zoom + 1);
+        };
+
+        //tambah data point
+
+        var university = [
+      { name: "UGM", coordinate: [110.3656, -7.7329] }, // UGM
+      { name: "UPN", coordinate: [110.3612, -7.7869] }, // UPN
+      { name: "UNY", coordinate: [110.3662, -7.7809] }, // UNY
+      { name: "Sanata Dharma", coordinate: [110.3812, -7.7801] }, // Sanata Dharma
+    ];
+
+   // Menambahkan marker dan popup untuk setiap universitas
+   var vectorSource = new ol.source.Vector();
+    university.forEach(function(university) {
+      var coordinate = ol.proj.fromLonLat(university.coordinate);
+      var marker = new ol.Feature({
+        geometry: new ol.geom.Point(coordinate)
+      });
+
+      marker.setStyle(new ol.style.Style({
+        image: new ol.style.Icon({
+          src: 'marker.png', // Gambar marker (gantilah dengan lokasi gambar Anda)
+          anchor: [0.5, 1], // Anchor point di tengah bawah marker
+          scale: [0.03] 
+        })
+      }));
+
+      vectorSource.addFeature(marker);
+
+      // Event untuk menampilkan popup saat marker diklik
+      map.on('click', function(event) {
+        var feature = map.forEachFeatureAtPixel(event.pixel, function(feature) {
+          return feature;
+        });
+
+        if (feature) {
+          var coordinates = feature.getGeometry().getCoordinates();
+          popup.setPosition(coordinates);
+          var content = document.getElementById('popup-content');
+          content.innerHTML = '<b>' + university.name + '</b><br>Lokasi di Yogyakarta';
+        } else {
+          popup.setPosition(undefined);
+        }
+      });
+    });
+
+    var vectorLayer = new ol.layer.Vector({
+      source: vectorSource
+    });
+    map.addLayer(vectorLayer);
+
+    // Deklarasi popup
+    var popup = new ol.Overlay({
+      element: document.getElementById('popup'),
+      positioning: 'bottom-center',
+      autoPan: true,
+      autoPanAnimation: {
+        duration: 250
+      }
+    });
+    map.addOverlay(popup);
+  </script>
+
+    <!-- Element untuk menampilkan popup -->
+  <div id="popup" class="ol-popup">
+    <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+    <div id="popup-content"></div>
+  </div>
+
+</body>
+
+</html>
